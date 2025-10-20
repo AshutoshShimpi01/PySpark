@@ -8,11 +8,9 @@ Would you solve this using row_number) or dense_rank)?
 
 
 
-from pyspark.sql import SparkSession
+
 from pyspark.sql.window import Window
-from pyspark.sql.functions import col, sum, date_format, dense_rank
-
-
+from pyspark.sql.functions import *
 
 monthly_spend_df = transaction_df.withColumn('month', date_format(col('date'), 'yyyy-mm'))
                    .groupBy('emp_id','month').agg(sum('amount').alias('total_spent'))
