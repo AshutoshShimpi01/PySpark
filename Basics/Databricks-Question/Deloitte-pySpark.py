@@ -12,6 +12,28 @@ from pyspark.sql import SparkSession
 from pyspark.sql.window import Window
 from pyspark.sql.functions import col, sum, date_format, dense_rank
 
+
+
+monthly_spend_df = transaction_df.withColumn('month', date_format(col('date'), 'yyyy-mm'))
+                   .groupBy('emp_id','month').agg(sum('amount').alias('total_spent'))
+
+window_spec = Window.partitionBy('month').orderBy(col('total_spent').desc())
+
+ranked_df = monthly_spend_df.withColumn('rk', dense_rank().over(window_spec))
+ranked_df.filter(col('rk') <= 2).show() 
+
+
+
+
+
+
+
+
+
+
+
+
+
 # Assuming 'transactions_df' is the input DataFrame
 
 # 1. Aggregation and Date Transformation
