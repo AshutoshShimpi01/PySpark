@@ -27,6 +27,20 @@ running_total_df.select('Customer_id', 'Order_date', 'Price_numeric', 'running_t
 
 
 
+my row logic-
+
+joind = sales_df.join(menu_df, 'product_id').withColumn('pr', col('price').cast(DoubleType()))
+win = Window.partitionBy('customer_id').orderBy('order_date').rowsBetween(...)
+final = joind.withColumn('nw', sum(col('pr')).over(win))
+
+final.select('cust_id','ord_dt','pr','nw')
+
+
+
+
+
+
+
 
 2nd Way
 ----------
