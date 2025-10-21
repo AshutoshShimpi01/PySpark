@@ -9,20 +9,14 @@ from pyspark.sql.functions import sum, col
 from pyspark.sql.window import Window
 from pyspark.sql.types import DoubleType 
 
-# 1. Join DataFrames and cast the Price column (required as it's StringType)
 joined_df = sales_df.join(menu_df, 'Product_id') \
     .withColumn('Price_numeric', col('Price').cast(DoubleType()))
 
-# 2. Define the Window Specification
-# Partition: Restart the sum for each customer
-# Order: Calculate the sum based on the transaction date sequence
-# Frame: UNBOUNDED PRECEDING (start of partition) to CURRENT ROW (running total)
 window_spec = Window.partitionBy('Customer_id').orderBy('Order_date').rowsBetween(
     Window.unboundedPreceding, 
     Window.currentRow
 )
 
-# 3. Apply the cumulative sum (SUM) over the defined window
 running_total_df = joined_df.withColumn(
     'running_total_spent', 
     sum(col('Price_numeric')).over(window_spec)
