@@ -8,4 +8,4 @@ from pyspark.sql.functions import *
 
 r = Window.orderBy(col('salary'))
 
-employees_df.withColumn('new', sum(col('salary').over(r))).show()
+employees_df.withColumn('new', sum(col('salary')).over(r)).show()
