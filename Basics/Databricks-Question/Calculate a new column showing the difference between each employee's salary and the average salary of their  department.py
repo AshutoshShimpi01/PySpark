@@ -11,3 +11,19 @@ employees_df.withColumn('average', col('salary') - avg(col('salary').alias('avg_
 
 
 
+
+2nd way
+
+
+
+
+from pyspark.sql.functions import *
+from pyspark.sql.window import *
+
+jn = employees_df.join(departments_df, 'dept_id')
+
+win = Window.partitionBy('dept_id')
+
+check = jn.withColumn('average_salary', avg('salary').over(win))
+
+check.withColumn('difference_betn_salary', col('average_salary') - col('salary')).show()
