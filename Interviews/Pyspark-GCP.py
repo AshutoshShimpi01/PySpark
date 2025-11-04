@@ -1,4 +1,29 @@
 
+Here are the 5 essential steps for running PySpark interactively on Google Cloud Dataproc:
+
+1.  **Build Your Spark Computer:** Start a Dataproc cluster in Google Cloud and make sure you select the **JupyterLab** add-on (called a component) during creation. 
+
+2.  **Open the Notebook:** Once the cluster is running, click the **"Web Interfaces"** link in the GCP console to open the JupyterLab tool in your web browser.
+
+3.  **Start PySpark:** Create a new notebook inside JupyterLab and choose the **PySpark Kernel**. This connects your notebook directly to the cluster's power.
+
+4.  **Write Code & Test:** You can now type your PySpark commands (like loading data or running calculations) line-by-line using the built-in `spark` object, and see the results instantly.
+
+5.  **Shut Down:** When you finish testing your code, **immediately delete the Dataproc cluster**. This is crucial, as you pay for the cluster for every minute it is running.
+
+
+
+
+
+
+IN DETAIL
+----------
+                                                                                                                                              
+                                                                                                                                            
+
+
+
+
 
 🧑‍💻 Interactive PySpark Development with Dataproc JupyterLab
 
