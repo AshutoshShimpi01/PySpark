@@ -14,14 +14,21 @@ from pyspark.sql.functions import *
 
 
 
-SELF WRITTEN  (Perfect)
+ (Perfect)
 -------------
 
-j_df = employees_df.join(departments_df, 'dept_id')
+from pyspark.sql.functions import sum, col
+from pyspark.sql.window import Window
 
-win = Window.partitionBy('dept_id').orderBy(col('salary'))
+join_df = employees_df.join(departments_df, 'dept_id')
 
-cum_sum_df = j_df.withColumn('new', sum('salary').over(win)).show()
+win_running_total = Window.partitionBy('dept_id').orderBy('salary').rowsBetween(Window.unboundedPreceding, Window.currentRow)
+
+join_df.withColumn('running_total_salary', sum(col('salary')).over(win_running_total)).show()
+
+
+
+
 
 
 
