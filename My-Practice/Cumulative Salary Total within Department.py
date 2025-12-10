@@ -22,10 +22,8 @@ from pyspark.sql.window import Window
 
 join_df = employees_df.join(departments_df, 'dept_id')
 
-win_running_total = Window.partitionBy('dept_id').orderBy('salary').rowsBetween(Window.unboundedPreceding, Window.currentRow)
-
-join_df.withColumn('running_total_salary', sum(col('salary')).over(win_running_total)).show()
-
+win = Window.partitionBy('dept_id').orderBy(col('salary')).rowsBetween(Window.unboundedPreceding,Window.currentRow)
+join_df.withColumn('running_total_salary', sum(col('salary')).over(win)).show()
 
 
 
