@@ -9,7 +9,25 @@ ordered by their hire date.
 
 
 from pyspark.sql.window import Window
-from pyspark.sql.functions import col, sum
+from pyspark.sql.functions import *
+
+
+
+
+SELF WRITTEN  (Perfect)
+-------------
+
+j_df = employees_df.join(departments_df, 'dept_id')
+
+win = Window.partitionBy('dept_id').orderBy(col('salary'))
+
+cum_sum_df = j_df.withColumn('new', sum('salary').over(win)).show()
+
+
+
+
+AI
+---
 
 # Using 'salary' for ordering since 'hire_date' is missing, but this changes the problem's intent.
 wind_running_sum = Window.partitionBy('dept_id').orderBy(col('salary')).rowsBetween(Window.unboundedPreceding, Window.currentRow)
