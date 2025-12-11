@@ -3,7 +3,7 @@
 from pyspark.sql.functions import *
 from pyspark.sql.window import *
 
-# Find the customers whose place the orders in consecutive Location 
+# Find the customers whose place the orders in consecutive Location- Using Lag.py
 
 
 win = Window.partitionBy('Customer_id').orderBy('order_date')
