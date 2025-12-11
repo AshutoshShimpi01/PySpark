@@ -16,6 +16,18 @@ jn_df.filter(col('salary') > col('dept_avg')).select('emp_id', 'dept_id', 'salar
 
 
 
+SAME IN 2 Lines
+
+d_avg = employees_df.groupBy('dept_id').agg(avg('salary').alias('dept_av'))
+
+jn = employees_df.join(d_avg, 'dept_id').filter(col('salary') > col('dept_av')).select('emp_id', 'dept_id', 'salary', 'dept_av').show()
+
+
+
+
+
+
+
 
 SAME USING WINDOW FUNCTIONS
 
