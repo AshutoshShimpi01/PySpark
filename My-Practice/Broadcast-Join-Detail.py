@@ -216,3 +216,345 @@ If you want next:
 * 🧪 **Hands-on interview problems**
 
 Just tell me 💪
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  SortMergeJoin
+------------------
+
+
+
+
+
+Short answer first 👇
+**If one dataset is > 100 MB → DO NOT use broadcast join.**
+
+Now let’s go **clear + interview-perfect**.
+
+---
+
+## ✅ Best Join Choice When One Dataset > 100 MB
+
+### 👉 **Sort Merge Join (SMJ)** ✅ **BEST & DEFAULT**
+
+Spark will automatically choose:
+
+```
+SortMergeJoin
+```
+
+### Why?
+
+* Handles **large datasets safely**
+* Scales to **GBs / TBs**
+* No executor memory explosion
+* Stable for production
+
+---
+
+## 🧠 Join Strategy Decision Rule (Very Important)
+
+| Small Table Size | Best Join                  |
+| ---------------- | -------------------------- |
+| ≤ 10 MB          | Broadcast Join             |
+| 10–50 MB         | Manual Broadcast (careful) |
+| 50–100 MB        | Depends on memory          |
+| **> 100 MB**     | **Sort Merge Join ✅**      |
+
+---
+
+## 🔍 Why NOT Broadcast (>100 MB)?
+
+If you broadcast a 120 MB table and you have 25 executors:
+
+```
+120 MB × 25 = 3 GB executor memory
+```
+
+❌ OOM errors
+❌ Executor crashes
+❌ Job retries → SLA miss
+
+---
+
+## 🔥 Sort Merge Join (SMJ) – Explained
+
+### How it works:
+
+1. Both datasets are **shuffled by join key**
+2. Data is **sorted**
+3. Join happens partition-wise
+
+### Pros:
+
+* Handles **very large data**
+* Memory efficient
+* Spark’s **default & safest join**
+
+### Cons:
+
+* Slower than broadcast
+* Shuffle cost exists
+
+---
+
+## 🧪 How to Force Sort Merge Join (If Needed)
+
+```python
+spark.conf.set("spark.sql.autoBroadcastJoinThreshold", "-1")
+```
+
+Or SQL hint:
+
+```sql
+SELECT /*+ MERGE */ *
+FROM big_table1
+JOIN big_table2
+ON id
+```
+
+---
+
+## ⚠️ What About Shuffle Hash Join?
+
+| Join Type         | Use Case                          |
+| ----------------- | --------------------------------- |
+| Shuffle Hash Join | Medium-sized data, low partitions |
+| Sort Merge Join   | **Large data (preferred)**        |
+
+Spark usually prefers **SMJ** over Shuffle Hash Join.
+
+---
+
+## 📌 Real-World Example (Telecom)
+
+* CDR table: **800 GB**
+* Subscriber table: **150 MB**
+
+✅ Use **Sort Merge Join**
+❌ Do NOT broadcast subscriber table
+
+---
+
+## 🎯 Interview-Ready Answer (1 line)
+
+> “When a dataset is larger than 100 MB, broadcast join is unsafe due to memory overhead. Spark should use Sort Merge Join, which is scalable and safe for large datasets.”
+
+---
+
+If you want:
+
+* 🔥 Join selection flowchart
+* ⚠️ Data skew handling techniques
+* 📊 Execution plan comparison
+* 🧠 Hard interview join questions
+
+Just say the word 💪
+
+                                                                                                                                                      
+
+
+
+
+
+
+
+
+
+
+
+
+
+Shuffle Hash Join
+------------------------
+
+
+
+
+
+
+
+
+
+Great question — this is **classic Spark interview material** 🔥
+Let’s go **crystal-clear, side-by-side**, with **when to use what**.
+
+---
+
+# ⚔️ Sort Merge Join vs Shuffle Hash Join (Spark)
+
+## 1️⃣ Sort Merge Join (SMJ)
+
+### 🔹 How it works
+
+1. Both datasets are **shuffled** on join key
+2. Data is **sorted** within each partition
+3. Join happens by **merging sorted streams**
+
+### 🔹 Key Characteristics
+
+* Default join strategy in Spark
+* Works best for **large datasets**
+* Very **memory efficient**
+
+### 🔹 Pros
+
+✅ Scales to **GBs / TBs**
+✅ Stable & safe for production
+✅ Handles high cardinality keys
+✅ Minimal memory pressure
+
+### 🔹 Cons
+
+❌ Sorting is expensive
+❌ Slower than broadcast
+
+---
+
+## 2️⃣ Shuffle Hash Join (SHJ)
+
+### 🔹 How it works
+
+1. Both datasets are **shuffled**
+2. **Smaller side builds a hash table** in memory
+3. Larger side probes the hash table
+
+### 🔹 Key Characteristics
+
+* Faster than SMJ for **medium-sized data**
+* Needs **enough memory**
+* Not default in Spark (usually avoided)
+
+### 🔹 Pros
+
+✅ Faster than SMJ (no sort)
+✅ Good for **medium datasets**
+
+### 🔹 Cons
+
+❌ Memory heavy
+❌ Risk of **OOM**
+❌ Doesn’t scale well to huge data
+
+---
+
+## 🔥 Head-to-Head Comparison
+
+| Feature          | Sort Merge Join | Shuffle Hash Join     |
+| ---------------- | --------------- | --------------------- |
+| Shuffle required | Yes             | Yes                   |
+| Sorting required | Yes             | ❌ No                  |
+| Hash table       | ❌ No            | ✅ Yes                 |
+| Memory usage     | Low             | High                  |
+| Data size        | Large (GB–TB)   | Medium (100MB–few GB) |
+| Default join     | ✅ Yes           | ❌ No                  |
+| Risk of OOM      | Very Low        | High                  |
+| Production safe  | ✅               | ⚠️                    |
+
+---
+
+## 🧠 When Spark Chooses Which
+
+### Spark prefers **Sort Merge Join** when:
+
+* Data is **large**
+* `spark.sql.join.preferSortMergeJoin = true` (default)
+* Keys are sortable
+
+### Spark may use **Shuffle Hash Join** when:
+
+* One side is **much smaller**
+* Enough executor memory
+* SMJ is disabled
+
+---
+
+## 🧪 How to Force Each Join
+
+### Force Sort Merge Join
+
+```python
+spark.conf.set("spark.sql.join.preferSortMergeJoin", "true")
+```
+
+SQL hint:
+
+```sql
+SELECT /*+ MERGE */ *
+FROM t1 JOIN t2
+ON t1.id = t2.id;
+```
+
+---
+
+### Force Shuffle Hash Join
+
+```python
+spark.conf.set("spark.sql.join.preferSortMergeJoin", "false")
+```
+
+SQL hint:
+
+```sql
+SELECT /*+ SHUFFLE_HASH(t2) */ *
+FROM t1 JOIN t2
+ON t1.id = t2.id;
+```
+
+---
+
+## ⚠️ Common Mistakes (Interview Red Flags)
+
+❌ Using Shuffle Hash Join for huge data
+❌ Broadcasting large tables
+❌ Ignoring data skew
+❌ Not checking execution plan
+
+---
+
+## 📊 How to Identify in Execution Plan
+
+```python
+df.explain(True)
+```
+
+Look for:
+
+```text
+SortMergeJoin
+```
+
+or
+
+```text
+ShuffledHashJoin
+```
+
+---
+
+## 🎯 Interview Golden Answer (Short)
+
+> “Sort Merge Join is Spark’s default and best for large datasets because it is memory efficient. Shuffle Hash Join is faster but memory intensive and suitable only when one side is much smaller and fits in memory.”
+
+---
+
+If you want next:
+
+* 🔥 Join strategy decision tree
+* ⚠️ Data skew fixes (salting, AQE)
+* 📈 Execution plan deep dive
+* 🧪 Hands-on Spark join problems
+
+Just tell me 💪
+
